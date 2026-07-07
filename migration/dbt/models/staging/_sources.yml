@@ -1,0 +1,69 @@
+version: 2
+
+sources:
+  - name: raw_insurance
+    description: >
+      Migrated landing zone replacing SAS RAW_INS ("/data/sas/raw/insurance").
+      The daily claims feed (RAW_INS.CLAIMS_FEED_YYYYMMDD) lands as a single
+      partitioned/date-stamped CLAIMS_FEED table filtered by feed_date.
+    database: "{{ env_var('SNOWFLAKE_DATABASE', 'INSURANCE') }}"
+    schema: RAW_INSURANCE
+    tables:
+      - name: claims_feed
+        description: Daily new-claims feed (was RAW_INS.CLAIMS_FEED_YYYYMMDD).
+        columns:
+          - name: claim_id
+          - name: policy_id
+          - name: claimant_id
+          - name: loss_date
+          - name: claimed_amount
+          - name: feed_date
+            description: Date the feed row belongs to (replaces YYYYMMDD suffix).
+      - name: policies
+        description: Policy master (RAW_INS.POLICIES).
+        columns:
+          - name: policy_id
+            tests: [not_null]
+          - name: customer_id
+          - name: policy_type
+          - name: status
+          - name: effective_date
+          - name: expiration_date
+          - name: annual_premium
+          - name: sum_insured
+          - name: deductible
+          - name: risk_category
+          - name: underwriting_class
+          - name: agent_id
+          - name: branch_code
+      - name: claims
+        description: Historical claims register (RAW_INS.CLAIMS).
+        columns:
+          - name: claim_id
+          - name: policy_id
+          - name: loss_date
+          - name: claim_status
+          - name: incurred_amount
+          - name: paid_amount
+          - name: reserved_amount
+      - name: premiums
+        description: Premium collection transactions (RAW_INS.PREMIUMS).
+        columns:
+          - name: policy_id
+          - name: premium_amount
+          - name: payment_date
+          - name: payment_status
+
+  - name: raw_dw
+    description: >
+      Migrated warehouse tables replacing SAS TERA_DW (Teradata ANALYTICS).
+    database: "{{ env_var('SNOWFLAKE_DATABASE', 'INSURANCE') }}"
+    schema: RAW_DW
+    tables:
+      - name: fraud_indicators
+        description: Fraud scores/flags per policy+claimant (TERA_DW.FRAUD_INDICATORS).
+        columns:
+          - name: policy_id
+          - name: claimant_id
+          - name: fraud_score
+          - name: indicator_flags

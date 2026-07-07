@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: claims_register
+    description: >
+      Claims register — auto-adjudicated + manual-review claims for a proc_date.
+      SAS: STG_INS.CLAIMS_REGISTER (claims_processing.sas step 4).
+    columns:
+      - name: claim_id
+        tests: [not_null]
+      - name: claim_status
+        description: DENY | APPR | PEND (equals adjudication_result).
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['APPR', 'DENY', 'PEND']
+      - name: fraud_risk
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['LOW', 'MEDIUM', 'HIGH']
+      - name: processing_date
+        tests: [not_null]
+
+  - name: claims_review_queue
+    description: >
+      Claims routed to manual review (DENY + PEND). SAS: STG_INS.CLAIMS_REVIEW_QUEUE.
+    columns:
+      - name: claim_id
+        tests: [not_null]
+      - name: adjudication_result
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['DENY', 'PEND']
+
+  - name: fraud_alerts
+    description: >
+      HIGH fraud-risk claims for SIU review. SAS: STG_INS.FRAUD_ALERTS.
+    columns:
+      - name: claim_id
+        tests: [not_null]
+      - name: alert_reason
+        tests: [not_null]
+
+  - name: policy_valuation
+    description: >
+      Monthly in-force policy valuation with loss/combined ratios, IBNR, reserves.
+      SAS: STG_INS.POLICY_VALUATION (policy_valuation.sas).
+    columns:
+      - name: policy_id
+        tests: [not_null]
+      - name: premium_adequate
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['Y', 'N']
+      - name: valuation_date
+        tests: [not_null]
+
+  - name: loss_ratio_summary
+    description: >
+      Loss/combined ratios aggregated by line of business.
+      SAS: REPORTS.LOSS_RATIO_SUMMARY.
+    columns:
+      - name: policy_type
+        tests: [not_null, unique]
