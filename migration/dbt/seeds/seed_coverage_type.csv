@@ -1,0 +1,10 @@
+coverage_type_code,coverage_type_desc
+COMP,Comprehensive
+COLL,Collision
+LIAB,Liability
+PIP,Personal Injury Protection
+UMBI,Uninsured Motorist BI
+UMPD,Uninsured Motorist PD
+MED,Medical Payments
+TOW,Towing
+RENT,Rental Reimbursement

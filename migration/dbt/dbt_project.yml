@@ -1,0 +1,41 @@
+name: 'insurance_migration'
+version: '1.0.0'
+config-version: 2
+
+profile: 'insurance_migration'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Runtime vars mirror the SAS macro parameters (&CURR_DT, lob=).
+# Override at run time, e.g.:
+#   dbt run --vars '{"proc_date": "2024-01-15", "valuation_date": "2024-01-31", "lob": "AUTO"}'
+vars:
+  proc_date: "2024-01-15"       # SAS proc_date (&CURR_DT) for claims_processing
+  valuation_date: "2024-01-31"  # SAS val_date for policy_valuation
+  lob: "ALL"                    # ALL | AUTO | HOME | WL | TL | UL | HLTH
+
+models:
+  insurance_migration:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: ephemeral
+    marts:
+      +materialized: table
+      +schema: insurance
+      claims_register:
+        +materialized: incremental
+      policy_valuation:
+        +materialized: incremental
+
+seeds:
+  insurance_migration:
+    +schema: seeds
