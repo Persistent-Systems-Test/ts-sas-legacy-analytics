@@ -1,9 +1,9 @@
 ---
-name: requirement-validation
+name: legacy-mapping
 description: Trace legacy SAS banking and insurance requirements from batch orchestration through DATA-step business rules, exception outputs, and downstream consumers.
 ---
 
-# Requirement validation — SAS legacy analytics
+# Legacy Mapping — SAS legacy analytics
 
 ## When to use this
 
